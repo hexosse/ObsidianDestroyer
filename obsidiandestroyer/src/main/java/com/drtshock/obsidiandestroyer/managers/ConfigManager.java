@@ -16,8 +16,8 @@ import java.util.logging.Level;
 public class ConfigManager {
 
     private static ConfigManager instance;
-    private static YamlConfiguration tc;
-    private static YamlConfiguration tm;
+    private YamlConfiguration tc;
+    private YamlConfiguration tm;
     private YamlConfiguration config;
     private YamlConfiguration materials;
     private boolean loaded;
@@ -76,23 +76,24 @@ public class ConfigManager {
         }
         File configFile = new File(ObsidianDestroyer.getInstance().getDataFolder(), "config.yml");
         if (!configFile.exists()) {
-            ObsidianDestroyer.debug("Creating config File...");
+            ObsidianDestroyer.debug("Creating config File.");
             createFile(configFile, "config.yml");
         } else {
-            ObsidianDestroyer.debug("Loading config File...");
+            ObsidianDestroyer.debug("Loading config File.");
         }
         config = YamlConfiguration.loadConfiguration(configFile);
 
         String version = ObsidianDestroyer.getInstance().getDescription().getVersion();
         if (config != null && !config.getString("Version", version).equals(version)) {
             if (update) {
-                ObsidianDestroyer.LOG.log(Level.SEVERE, "Loading failed on update check.  Aborting...");
+                ObsidianDestroyer.LOG.log(Level.SEVERE, "Loading failed on update check.  Aborting!");
                 return;
             }
             ObsidianDestroyer.LOG.log(Level.WARNING, "Config File outdated, backing up old...");
-            File configFileOld = new File(ObsidianDestroyer.getInstance().getDataFolder(), "config.yml.old");
+            File configFileOld = new File(ObsidianDestroyer.getInstance().getDataFolder(), "config.yml.old-" + config.getString("Version", version).replace(".", "_"));
             try {
                 config.save(configFileOld);
+                ObsidianDestroyer.LOG.log(Level.WARNING, "Backed up old config as '" + configFileOld.getName() + "'");
             } catch (IOException e) {
                 loaded = false;
                 e.printStackTrace();
@@ -105,14 +106,14 @@ public class ConfigManager {
             return;
         }
 
-        File structuresFile = new File(ObsidianDestroyer.getInstance().getDataFolder(), "materials.yml");
-        if (!structuresFile.exists()) {
-            ObsidianDestroyer.debug("Creating materials File...");
-            createFile(structuresFile, "materials.yml");
+        File materialsFile = new File(ObsidianDestroyer.getInstance().getDataFolder(), "materials.yml");
+        if (!materialsFile.exists()) {
+            ObsidianDestroyer.debug("Creating materials File.");
+            createFile(materialsFile, "materials.yml");
         } else {
-            ObsidianDestroyer.debug("Loading materials File...");
+            ObsidianDestroyer.debug("Loading materials File.");
         }
-        materials = YamlConfiguration.loadConfiguration(structuresFile);
+        materials = YamlConfiguration.loadConfiguration(materialsFile);
         loaded = true;
     }
 
@@ -208,21 +209,31 @@ public class ConfigManager {
                 ConfigurationSection materialSection = section.getConfigurationSection(durabilityMaterial);
                 Material material = Material.matchMaterial(durabilityMaterial);
                 if (material == null) {
-                    ObsidianDestroyer.LOG.log(Level.SEVERE, "Invalid Material Type: Unable to load ''{0}''", durabilityMaterial);
-                    continue;
+                    if (Material.getMaterial(durabilityMaterial) == null) {
+                        ObsidianDestroyer.LOG.log(Level.SEVERE, "Invalid Material Type: Unable to load ''{0}''", durabilityMaterial);
+                        continue;
+                    } else {
+                        material = Material.getMaterial(durabilityMaterial);
+                        ObsidianDestroyer.LOG.log(Level.SEVERE, "Semi-Valid Material Type: Loaded as ''{0}''", material.name());
+                    }
                 }
                 if (!Util.isSolid(material)) {
                     ObsidianDestroyer.LOG.log(Level.WARNING, "Non-Solid Material Type: Did not load ''{0}''", durabilityMaterial);
                     continue;
                 }
-                DurabilityMaterial durablock = new DurabilityMaterial(material, materialSection);
+                final DurabilityMaterial durablock;
+                if (materialSection.contains("MetaData")) {
+                    durablock = new DurabilityMaterial(material, materialSection.getInt("MetaData"), materialSection);
+                } else {
+                    durablock = new DurabilityMaterial(material, materialSection);
+                }
                 if (durablock.getEnabled()) {
                     if (getVerbose() || getDebug()) {
-                        ObsidianDestroyer.LOG.log(Level.INFO, "Loaded durability of ''{0}'' for ''{1}''", new Object[]{durablock.getDurability(), durabilityMaterial});
+                        ObsidianDestroyer.LOG.log(Level.INFO, "Loaded durability of ''{0}'' for ''{1}''", new Object[]{durablock.getDurability(), durablock.toString()});
                     }
-                    durabilityMaterials.put(material.name(), durablock);
+                    durabilityMaterials.put(durablock.toString(), durablock);
                 } else if (getDebug()) {
-                    ObsidianDestroyer.debug("Disabled durability of '" + durablock.getDurability() + "' for '" + durabilityMaterial + "'");
+                    ObsidianDestroyer.debug("Disabled durability of '" + durablock.getDurability() + "' for '" + durablock.toString() + "'");
                 }
             } catch (Exception e) {
                 ObsidianDestroyer.LOG.log(Level.SEVERE, "Failed loading material ''{0}''", durabilityMaterial);
@@ -271,11 +282,23 @@ public class ConfigManager {
     }
 
     public Material getDurabilityCheckItem() {
-        return Material.matchMaterial(config.getString("DurabilityGlobal.CheckItem", "POTATO_ITEM"));
+        Material material = Material.matchMaterial(config.getString("DurabilityGlobal.CheckItem", "POTATO_ITEM"));
+        if (material == null) {
+            material = Material.POTATO_ITEM;
+        }
+        return material;
     }
 
     public boolean getHandleFactions() {
+        return config.getBoolean("Factions.Enabled", false);
+    }
+
+    public boolean getHandleFactionsExplosions() {
         return config.getBoolean("Factions.HandleExplosions", true);
+    }
+
+    public boolean getUseFactionsPowerLevel() {
+        return config.getBoolean("Factions.UseFactionPowerLevel", false);
     }
 
     public boolean getHandleOfflineFactions() {
@@ -287,7 +310,7 @@ public class ConfigManager {
     }
 
     public boolean getUsingFactions() {
-        return getHandleFactions() && HookManager.getInstance().isUsingFactions();
+        return getHandleFactionsExplosions() && HookManager.getInstance().isUsingFactions();
     }
 
     public boolean getHandleOnlineFactions() {

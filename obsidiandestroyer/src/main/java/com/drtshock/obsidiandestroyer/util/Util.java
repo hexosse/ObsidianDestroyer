@@ -193,8 +193,8 @@ public class Util {
         return true;
     }
 
-    public static int getMaxDistance(String material, int defaultRadius) {
-        int dist = MaterialManager.getInstance().getBlastRadius(material);
+    public static int getMaxDistance(String material, int data, int defaultRadius) {
+        int dist = MaterialManager.getInstance().getBlastRadius(material, data);
         if (dist <= 0) {
             dist = defaultRadius;
         }
@@ -202,16 +202,16 @@ public class Util {
     }
 
     @Deprecated
-    public static boolean checkIfMax(int value, String id) {
-        return value >= MaterialManager.getInstance().getDurability(id);
+    public static boolean checkIfMax(int value, String id, int data) {
+        return value >= MaterialManager.getInstance().getDurability(id, data);
     }
 
-    public static boolean checkIfMax(int value, String id, double multi) {
-        return value >= Math.round(MaterialManager.getInstance().getDurability(id) * multi);
+    public static boolean checkIfMax(int value, String id, int data, double multi) {
+        return value >= Math.round(MaterialManager.getInstance().getDurability(id, data) * multi);
     }
 
-    public static boolean checkIfOverMax(int value, String id, double multi) {
-        final int du = MaterialManager.getInstance().getDurability(id);
+    public static boolean checkIfOverMax(int value, String id, int data, double multi) {
+        final int du = MaterialManager.getInstance().getDurability(id, data);
         return value > Math.round((du * multi) + (du * 0.18));
     }
 
@@ -272,7 +272,7 @@ public class Util {
                 // check if the block material is being handled
                 if (useOnlyMaterialListing) {
                     // only handle for certain case as to not interfere with all explosions
-                    if (MaterialManager.getInstance().contains(block.getType().name())) {
+                    if (MaterialManager.getInstance().contains(block.getType().name(), block.getData())) {
                         return true;
                     } else {
                         continue;
@@ -332,7 +332,7 @@ public class Util {
                 // check if the block material is being handled
                 if (useOnlyMaterialListing) {
                     // only handle for certain case as to not interfere with all explosions
-                    if (MaterialManager.getInstance().contains(block.getType().name())) {
+                    if (MaterialManager.getInstance().contains(block.getType().name(), block.getData())) {
                         tagetsInPath.add(block.getLocation());
                         break;
                     } else {
@@ -359,12 +359,22 @@ public class Util {
             return 1D;
         }
 
-        double value = 1D;
+        double value;
         if (FactionsIntegration.get().isExplosionsEnabled(location)) {
             value = 1D;
+        } else {
+            return 0;
+        }
+        if (ConfigManager.getInstance().getUseFactionsPowerLevel() && FactionsIntegration.get().isFactionAtPower(location)) {
+            if (!MaterialManager.getInstance().getBypassFactionsProtection(location.getBlock().getType().name(), location.getBlock().getData())) {
+                return 0;
+            }
         }
         if (ConfigManager.getInstance().getHandleOfflineFactions()) {
             if (FactionsIntegration.get().isFactionOffline(location)) {
+                if (ConfigManager.getInstance().getProtectOfflineFactions()) {
+                    return 0;
+                }
                 value = ConfigManager.getInstance().getOfflineFactionsDurabilityMultiplier();
             }
         }
@@ -373,7 +383,7 @@ public class Util {
                 value = ConfigManager.getInstance().getOnlineFactionsDurabilityMultiplier();
             }
         }
-        if (value <= 0) {
+        if (value < 0) {
             value = 1D;
         }
 

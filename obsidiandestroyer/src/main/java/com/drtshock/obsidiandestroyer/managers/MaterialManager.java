@@ -44,7 +44,8 @@ public class MaterialManager {
      * @param material to compare against
      * @return true if item equals managed block
      */
-    public boolean contains(String material) {
+    public boolean contains(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material);
     }
 
@@ -53,8 +54,17 @@ public class MaterialManager {
      *
      * @return whether durability for block is enabled
      */
-    public boolean getDurabilityEnabled(String material) {
+    public boolean getDurabilityEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getEnabled();
+    }
+
+    private String getMaterialName(String material, int data) {
+        if (durabilityMaterials.containsKey(material + ":" + data)) {
+            return material + ":" + data;
+        } else {
+            return material;
+        }
     }
 
     /**
@@ -62,7 +72,8 @@ public class MaterialManager {
      *
      * @return the max durability
      */
-    public int getDurability(String material) {
+    public int getDurability(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getDurability();
         }
@@ -74,7 +85,8 @@ public class MaterialManager {
      *
      * @return whether durability timer for block is enabled
      */
-    public boolean getDurabilityResetTimerEnabled(String material) {
+    public boolean getDurabilityResetTimerEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getResetEnabled();
     }
 
@@ -83,7 +95,8 @@ public class MaterialManager {
      *
      * @return the time in milliseconds after which the durability gets reset
      */
-    public long getDurabilityResetTime(String material) {
+    public long getDurabilityResetTime(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getResetTime();
         }
@@ -95,7 +108,8 @@ public class MaterialManager {
      *
      * @return the chance to drop an item from a blown up block
      */
-    public double getChanceToDropBlock(String material) {
+    public double getChanceToDropBlock(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getChanceTopDrop();
         }
@@ -106,9 +120,11 @@ public class MaterialManager {
      * Returns if Fireball damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return Fireball damage is enabled for block
      */
-    public boolean getGhastsEnabled(String material) {
+    public boolean getGhastsEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getGhastsEnabled();
     }
 
@@ -116,9 +132,11 @@ public class MaterialManager {
      * Returns if Creeper damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return Creeper damage is enabled for block
      */
-    public boolean getCreepersEnabled(String material) {
+    public boolean getCreepersEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getCreepersEnabled();
     }
 
@@ -126,9 +144,11 @@ public class MaterialManager {
      * Returns if Cannon damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return Cannon damage is enabled for block
      */
-    public boolean getCannonsEnabled(String material) {
+    public boolean getCannonsEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getCannonsEnabled();
     }
 
@@ -136,9 +156,11 @@ public class MaterialManager {
      * Returns if TNT damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return TNT damage is enabled for block
      */
-    public boolean getTntEnabled(String material) {
+    public boolean getTntEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getTntEnabled();
     }
 
@@ -146,9 +168,11 @@ public class MaterialManager {
      * Returns if TNT minecart damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return TNT minecart damage is enabled for block
      */
-    public boolean getTntMinecartsEnabled(String material) {
+    public boolean getTntMinecartsEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getTntMinecartsEnabled();
     }
 
@@ -156,9 +180,11 @@ public class MaterialManager {
      * Returns if Wither damage is enabled for block
      *
      * @param material key
+     * @param data
      * @return Wither damage is enabled for block
      */
-    public boolean getWithersEnabled(String material) {
+    public boolean getWithersEnabled(String material, int data) {
+        material = getMaterialName(material, data);
         return durabilityMaterials.containsKey(material) && durabilityMaterials.get(material).getWithersEnabled();
     }
 
@@ -166,9 +192,11 @@ public class MaterialManager {
      * Returns the blast radius for a specific material
      *
      * @param material the name of the material to lookup
+     * @param data
      * @return Blast Radius or 0
      */
-    public int getBlastRadius(String material) {
+    public int getBlastRadius(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getRadius();
         }
@@ -180,9 +208,11 @@ public class MaterialManager {
      *
      * @param entity   the entity that is involved in damaging
      * @param material the name of the material to lookup
+     * @param data
      * @return amount of damage done
      */
-    public int getDamageTypeAmount(Entity entity, String material) {
+    public int getDamageTypeAmount(Entity entity, String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             EntityType eventTypeRep = entity.getType();
             switch (eventTypeRep) {
@@ -202,6 +232,8 @@ public class MaterialManager {
                 case SMALL_FIREBALL:
                 case GHAST:
                     return durabilityMaterials.get(material).getGhastsDamage();
+                case BAT:
+                    return durabilityMaterials.get(material).getNullDamage();
                 default:
                     break;
             }
@@ -213,34 +245,104 @@ public class MaterialManager {
      * Returns the amount of damage done to the material by a cannon projectile
      *
      * @param material the name of the material to lookup
+     * @param data
      * @return amount of damage done
      */
-    public int getDamageTypeCannonsImpactAmount(String material) {
+    public int getDamageTypeCannonsImpactAmount(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getCannonsImpactDamage();
         }
         return 1;
     }
 
-    public int getDamageTypeCannonsPierceAmount(String material) {
+    /**
+     * Returns the amount of damage done to the material by a cannon projectile
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return amount of damage done
+     */
+    public int getDamageTypeCannonsPierceAmount(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getCannonsPierceDamage();
         }
         return 1;
     }
 
-    public double getFluidDamperAmount(String material) {
+    /**
+     * Returns the amount to damper based on the material
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return amount to damper
+     */
+    public double getFluidDamperAmount(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).getFluidDamper();
         }
         return 0;
     }
 
-    public boolean isDestructible(String material) {
+    /**
+     * Returns if the material is destructible
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return true if destructible
+     */
+    public boolean isDestructible(String material, int data) {
+        material = getMaterialName(material, data);
         if (durabilityMaterials.containsKey(material)) {
             return durabilityMaterials.get(material).isDestructible();
         }
         return true;
     }
 
+    /**
+     * Returns if the material handles null explosion damage
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return true if material handles null damage
+     */
+    public boolean getNullEnabled(String material, int data) {
+        material = getMaterialName(material, data);
+        if (durabilityMaterials.containsKey(material)) {
+            return durabilityMaterials.get(material).isNullEnabled();
+        }
+        return true;
+    }
+
+    /**
+     * Returns if the material bypasses fluid protections
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return true if material is damageable while protected by fluids
+     */
+    public boolean getBypassFluidProtection(String material, int data) {
+        material = getMaterialName(material, data);
+        if (durabilityMaterials.containsKey(material)) {
+            return durabilityMaterials.get(material).bypassFluidProtection();
+        }
+        return false;
+    }
+
+    /**
+     * Returns if the material bypasses faction power protection
+     *
+     * @param material the name of the material to lookup
+     * @param data
+     * @return true if the material bypasses factions protection
+     */
+    public boolean getBypassFactionsProtection(String material, int data) {
+        material = getMaterialName(material, data);
+        if (durabilityMaterials.containsKey(material)) {
+            return durabilityMaterials.get(material).bypassFactionsProtection();
+        }
+        return false;
+    }
 }

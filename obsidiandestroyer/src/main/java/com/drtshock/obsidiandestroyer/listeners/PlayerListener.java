@@ -20,23 +20,32 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (player.getItemInHand().getAmount() > 0 && event.getAction() == Action.LEFT_CLICK_BLOCK && event.hasBlock()) {
-            if (!player.hasPermission("obsidiandestroyer.check")) {
-                return;
-            }
-            Material itemInHand = player.getItemInHand().getType();
-            Block block = event.getClickedBlock();
-            if (itemInHand != null && ConfigManager.getInstance().getDurabilityCheckItem().equals(itemInHand)) {
-                MaterialManager mm = MaterialManager.getInstance();
-                if (mm.getDurabilityEnabled(block.getType().name())) {
-                    if (player.getGameMode() == GameMode.CREATIVE) {
-                        event.setCancelled(true);
+        try {
+            if (player.getItemInHand().getAmount() > 0 && event.getAction() == Action.LEFT_CLICK_BLOCK && event.hasBlock()) {
+                if (!player.hasPermission("obsidiandestroyer.check")) {
+                    return;
+                }
+                Material itemInHand = player.getItemInHand().getType();
+                Block block = event.getClickedBlock();
+                if (itemInHand != null && ConfigManager.getInstance().getDurabilityCheckItem().equals(itemInHand)) {
+                    MaterialManager mm = MaterialManager.getInstance();
+                    if (block != null && mm.getDurabilityEnabled(block.getType().name(), block.getData())) {
+                        if (player.getGameMode() == GameMode.CREATIVE) {
+                            event.setCancelled(true);
+                        }
+                        int amount = ChunkManager.getInstance().getMaterialDurability(block);
+                        double mult = Util.getMultiplier(block.getLocation());
+                        if (mult == 0) {
+                            player.sendMessage(ChatColor.DARK_PURPLE + "Durability of this block is: " + ChatColor.WHITE + "∞");
+                        } else {
+                            int max = (int) Math.round(mm.getDurability(block.getType().name(), block.getData()) * Util.getMultiplier(block.getLocation()));
+                            player.sendMessage(ChatColor.DARK_PURPLE + "Durability of this block is: " + ChatColor.WHITE + (!mm.isDestructible(block.getType().name(), block.getData()) ? "∞" : (max - amount) + "/" + max));
+                        }
                     }
-                    int amount = ChunkManager.getInstance().getMaterialDurability(block);
-                    int max = (int) Math.round(mm.getDurability(block.getType().name()) * Util.getMultiplier(block.getLocation()));
-                    player.sendMessage(ChatColor.DARK_PURPLE + "Durability of this block is: " + ChatColor.WHITE + (!mm.isDestructible(block.getType().name()) ? "∞" : (max - amount) + "/" + max));
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

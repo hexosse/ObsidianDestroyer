@@ -7,6 +7,10 @@ HandledMaterials:
   # The name of Material that will have a durability applied
   STONE:
 
+    # Data Types for blocks with different types and metadata
+    # Defaults to be ignored if this flag is not present
+    MetaData: 0
+
     # Individual blast radius for each material.
     # Works best if less than or equal to 'Radius' from config.yml (Experiment with it)
     # Defaults to 'Radius' from config.yml if line below is not present.
@@ -18,8 +22,12 @@ HandledMaterials:
 
     # Enable to have this specific material damageable though liquids when 'BypassAllFluidProtection: false'
     # Defaults to false if this flag is not present
-    # This flag is ignored when 'BypassAllFluidProtection: true' in config.yml
+    # This flag is overridden when 'BypassAllFluidProtection: true' in config.yml
     BypassFluidProtection: false
+
+    # Enable this to override the protection provided by factions when 'UseFactionPowerLevel' is enabled.
+    # Defaults to false if this flag is not present
+    BypassFactionProtection: false
 
     # Material explosion resistance settings
     Durability:
@@ -53,6 +61,7 @@ HandledMaterials:
       Cannons: true
       Withers: true
       Minecarts: true
+      NullDamage: true
 
     # The amount of damage each explosion type will do
     # Only used if 'EnabledFor' above is true
@@ -67,7 +76,7 @@ HandledMaterials:
       CannonsPierce: 2
       Withers: 1
       Minecarts: 1
-
+      NullDamage: 1
 
   # ======================================================
   # OBSIDIAN - Default enabled with 13 durability
@@ -641,6 +650,110 @@ HandledMaterials:
       TNT: true
       Creepers: true
       Ghasts: false
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  # Skull
+  SKULL:
+    MetaData: 1
+    BlastRadius: 3
+    Durability:
+      Amount: 2
+      Enabled: true
+      ChanceToDrop: 0.0
+      ResetEnabled: false
+      ResetAfter: 300000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: false
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  # Stone Slab
+  STEP:
+    MetaData: 0
+    BlastRadius: 3
+    BypassFluidProtection: true
+    Durability:
+      Amount: 2
+      Enabled: false
+      ChanceToDrop: 0.20
+      ResetEnabled: false
+      ResetAfter: 300000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: true
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  # Stone Brick Slab
+  STEP:
+    MetaData: 5
+    BlastRadius: 3
+    BypassFluidProtection: true
+    Durability:
+      Amount: 3
+      Enabled: false
+      ChanceToDrop: 0.20
+      ResetEnabled: false
+      ResetAfter: 300000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: true
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  # Oak
+  LOG:
+    MetaData: 0
+    BlastRadius: 3
+    Durability:
+      Amount: 2
+      Enabled: false
+      ChanceToDrop: 0.20
+      ResetEnabled: false
+      ResetAfter: 300000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: true
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  # Spruce
+  LOG:
+    MetaData: 1
+    BlastRadius: 3
+    Durability:
+      Amount: 2
+      Enabled: false
+      ChanceToDrop: 0.20
+      ResetEnabled: false
+      ResetAfter: 300000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: true
+      Cannons: true
+      Withers: true
+      Minecarts: true
+  OBSIDIAN:
+    BlastRadius: 3
+    BypassFluidProtection: true
+    Durability:
+      Amount: 1
+      FluidDamper: 0.07
+      Enabled: false
+      ChanceToDrop: 0.6
+      ResetEnabled: true
+      ResetAfter: 600000
+    EnabledFor:
+      TNT: true
+      Creepers: true
+      Ghasts: true
       Cannons: true
       Withers: true
       Minecarts: true
